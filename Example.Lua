@@ -959,7 +959,7 @@ function Lib:CreateWindow(info, size)
         -- no visible patch box: only a thin strip (same color as the box top) cuts the border + accent bar behind the title
         local tl = New("Frame", {Size = UDim2.new(0,0,0,16), Position = UDim2.new(0,8,0,-8), AutomaticSize = Enum.AutomaticSize.X,
             BackgroundTransparency = 1, BorderSizePixel = 0, ZIndex = 3}, box)
-        New("Frame", {Size = UDim2.new(1,8,0,4), Position = UDim2.new(0,-4,0,7), BackgroundColor3 = Color3.fromRGB((28,28,32), BorderSizePixel = 0, ZIndex = 3}, tl)
+        New("Frame", {Size = UDim2.new(1,8,0,4), Position = UDim2.new(0,-4,0,7), BackgroundColor3 = Color3.fromRGB(28,28,32), BorderSizePixel = 0, ZIndex = 3}, tl)
         New("UIPadding", {PaddingLeft = UDim.new(0,4), PaddingRight = UDim.new(0,4)}, tl)
         local tlt = Text(tl, name, {Bold = true, S = UDim2.new(0,0,1,0)})
         tlt.AutomaticSize, tlt.ZIndex = Enum.AutomaticSize.X, 4
