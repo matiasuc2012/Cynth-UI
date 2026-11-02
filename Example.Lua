@@ -1597,6 +1597,8 @@ Players.PlayerAdded:Connect(function(player)
 	Library:Notify(player.Name .. " Has joined the server", 5)
 end)
 
+local TabCfg  = Window:AddTab("Config")
+
 local cf = TabCfg:AddLeftGroupbox("Configs", 245)
 cf:AddInput("cfg_name", {Text = "Config name", Placeholder = "new config name"})
 Dd(cf, "cfg_list", "Config list", {}, nil)
