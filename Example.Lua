@@ -1581,7 +1581,33 @@ function Lib:CreateWindow(info, size)
     return W
 end
 
-local WindowTitle = 'Rat.Lua | Owner Version | Aftermath | ' .. identifyexecutor()
+
+local function Tog(g, idx, text, info)
+    info = info or {}
+    info.Text = text
+    return g:AddToggle(idx, info)
+end
+
+local function Dd(g, idx, text, values, default, multi)
+    return g:AddDropdown(idx, {
+        Text = text,
+        Values = values or {},
+        Default = default,
+        Multi = multi,
+    })
+end
+
+local function Sld(g, idx, text, min, max, default, suffix)
+    return g:AddSlider(idx, {
+        Text = text,
+        Min = min,
+        Max = max,
+        Default = default,
+        Suffix = suffix,
+    })
+end
+
+local WindowTitle = 'Rat.Lua | Owner Version | Aftermath | ' .. (type(identifyexecutor) == 'function' and identifyexecutor() or 'unknown')
 
 local Window = Library:CreateWindow({
     Title = WindowTitle,
@@ -1597,6 +1623,10 @@ Players.PlayerAdded:Connect(function(player)
 	Library:Notify(player.Name .. " Has joined the server", 5)
 end)
 
+local TabAim  = Window:AddTab("Combat")
+local TabVis  = Window:AddTab("Visuals")
+local TabPlr  = Window:AddTab("Players")
+local TabWorld= Window:AddTab("World")
 local TabCfg  = Window:AddTab("Config")
 
 local cf = TabCfg:AddLeftGroupbox("Configs", 245)
@@ -1667,7 +1697,6 @@ Options.ui_dpi:OnChanged(function(v)
 end)
 
 local ab = TabCfg:AddLeftGroupbox("About", 160)
-ab:AddLabel("cynth | phantom forces")
 ab:AddLabel("click [KEY] next to a toggle to rebind")
 ab:AddLabel("Menu key"):AddKeyPicker("MenuKeybind",{Default="Insert",NoUI=true,Text="Menu keybind",Mode="Always"})
 Lib.ToggleKeybind = Options.MenuKeybind
