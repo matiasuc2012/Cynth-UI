@@ -1580,4 +1580,96 @@ function Lib:CreateWindow(info, size)
     end
     return W
 end
+
+local cf = TabCfg:AddLeftGroupbox("Configs", 245)
+cf:AddInput("cfg_name", {Text = "Config name", Placeholder = "new config name"})
+Dd(cf, "cfg_list", "Config list", {}, nil)
+local function cleanName(s) return (tostring(s or ""):gsub("[^%w%-_ ]",""):gsub("^%s+",""):gsub("%s+$","")) end
+local function refreshCfg(selName)
+    Options.cfg_list:SetValues(Lib:CfgList())
+    if selName then Options.cfg_list:SetValue(selName) end
+end
+cf:AddButton({Text="Create", Func=function()
+    local n = cleanName(Options.cfg_name.Value)
+    if n=="" then return Library:Notify("Type a config name first") end
+    if Lib:CfgExists(n) then return Library:Notify("'"..n.."' already exists") end
+    Lib:CfgWrite(n); refreshCfg(n); Library:Notify("Config created: "..n)
+end}):AddButton({Text="Load", Func=function()
+    local n = Options.cfg_list.Value
+    if not n then return Library:Notify("Select a config first") end
+    local s = Lib:CfgRead(n)
+    if s and Lib:CfgApply(s) then Library:Notify("Loaded: "..n) else Library:Notify("Could not load '"..n.."'") end
+end})
+cf:AddButton({Text="Overwrite", DoubleClick=true, Func=function()
+    local n = Options.cfg_list.Value
+    if not n then return Library:Notify("Select a config first") end
+    Lib:CfgWrite(n); Library:Notify("Overwritten: "..n)
+end}):AddButton({Text="Delete", DoubleClick=true, Func=function()
+    local n = Options.cfg_list.Value
+    if not n then return Library:Notify("Select a config first") end
+    Lib:CfgDel(n); refreshCfg(); Library:Notify("Deleted: "..n)
+end})
+cf:AddButton("Refresh list", function() refreshCfg(Options.cfg_list.Value) end)
+Tog(cf, "autoload", "Auto load", {Callback=function(v)
+    pcall(function()
+        if v then
+            local n = Options.cfg_list and Options.cfg_list.Value
+            if n then writefile("cynth/autoload.txt", n) end
+        elseif isfile and isfile("cynth/autoload.txt") then delfile("cynth/autoload.txt") end
+    end)
+end})
+Tog(cf, "saveexit", "Save on exit")
+Lib:OnUnload(function()
+    local n = Options.cfg_list and Options.cfg_list.Value
+    if Toggles.saveexit and Toggles.saveexit.Value and n then Lib:CfgWrite(n) end
+end)
+
+local ui = TabCfg:AddRightGroupbox("Interface", 245)
+Tog(ui,"ui_wm","Watermark",{Default=true,Callback=function(v) if Lib.Watermark then Lib.Watermark.Visible=v end end})
+Dd(ui,"ui_wm_items","Watermark elements",{"Ping","FPS","Player name","Game name","Time","Last heartbeat (ms)"},{"Ping","FPS"},true)
+Options.ui_wm_items:OnChanged(function(v) Lib.WMItems=v or{}; if Lib.RefreshWatermark then Lib:RefreshWatermark() end end)
+Tog(ui,"ui_kbl","Keybind list",{Default=true,Callback=function(v) if Lib.KeybindFrame then Lib.KeybindFrame.Visible=v end end})
+Tog(ui,"ui_thud","Target HUD",{Default=true,Callback=function(v) if Lib.TargetHud then Lib.TargetHud.Enabled=v end end})
+Tog(ui,"ui_tv","TV open animation",{Default=true,Callback=function(v) Lib.TVEffect=v end})
+Sld(ui,"ui_thud_size","Target HUD size",50,250,100,"%")
+Options.ui_thud_size:OnChanged(function(v) if Lib.TargetHud then Lib.TargetHud:SetScale((v or 100)/100) end end)
+Tog(ui,"ui_notif","Notifications",{Default=true,Callback=function(v) Lib.NotifyEnabled=v end})
+Dd(ui,"ui_notifside","Notification side",{"Up left","Up right","Down left","Down right"},"Up right")
+Options.ui_notifside:OnChanged(function(v) if v then Lib:SetNotifySide(v) end end)
+ui:AddSlider("ui_notiftime",{Text="Notification time",Min=1,Max=10,Default=3,Suffix="s",Callback=function(v) Lib.NotifyTime=v end})
+ui:AddLabel("Accent color"):AddColorPicker("ui_accent_col",{Default=T.Accent,Title="Accent color",Callback=function(c) Lib:SetAccent(c) end})
+Sld(ui,"ui_dpi","Menu opacity",30,100,100,"%")
+Options.ui_dpi:OnChanged(function(v)
+    Lib._baseTrans = 1-(v or 100)/100
+    local m = Lib._main
+    if m and Lib.Open then
+        if Lib._fade then Lib._fade:Cancel() end
+        m.GroupTransparency = Lib._baseTrans
+    end
+end)
+
+local ab = TabCfg:AddLeftGroupbox("About", 160)
+ab:AddLabel("cynth | phantom forces")
+ab:AddLabel("click [KEY] next to a toggle to rebind")
+ab:AddLabel("Menu key"):AddKeyPicker("MenuKeybind",{Default="Insert",NoUI=true,Text="Menu keybind",Mode="Always"})
+Lib.ToggleKeybind = Options.MenuKeybind
+ab:AddDropdown("ui_font",{Text="Font",Values={"Code","Pixel","Mono","Verdana","Jura","Josefin","Gotham"},Default=Lib.FontPreset,
+    Callback=function(v) if v then Lib:SetFont(v) end end})
+ab:AddButton("Unload", function() Lib:Unload() end)
+
+refreshCfg()
+task.defer(function()
+    pcall(function()
+        if isfile and isfile("cynth/autoload.txt") then
+            local n = readfile("cynth/autoload.txt")
+            local s = Lib:CfgRead(n)
+            if s then
+                Options.cfg_list:SetValue(n); Lib:CfgApply(s)
+                Toggles.autoload:SetValue(true)
+                Library:Notify("Auto loaded: "..n)
+            end
+        end
+    end)
+end)
+
 return Lib
