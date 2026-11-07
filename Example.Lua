@@ -1607,7 +1607,7 @@ local function Sld(g, idx, text, min, max, default, suffix)
     })
 end
 
-local WindowTitle = 'Rat.Lua | Owner Version | Aftermath | ' .. (type(identifyexecutor) == 'function' and identifyexecutor() or 'unknown')
+local WindowTitle = 'Cynth | Dev ' .. (type(identifyexecutor) == 'function' and identifyexecutor() or 'unknown')
 
 local Window = Library:CreateWindow({
     Title = WindowTitle,
@@ -1623,10 +1623,6 @@ Players.PlayerAdded:Connect(function(player)
 	Library:Notify(player.Name .. " Has joined the server", 5)
 end)
 
-local TabAim  = Window:AddTab("Combat")
-local TabVis  = Window:AddTab("Visuals")
-local TabPlr  = Window:AddTab("Players")
-local TabWorld= Window:AddTab("World")
 local TabCfg  = Window:AddTab("Config")
 
 local cf = TabCfg:AddLeftGroupbox("Configs", 245)
