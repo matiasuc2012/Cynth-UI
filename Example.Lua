@@ -1607,7 +1607,7 @@ local function Sld(g, idx, text, min, max, default, suffix)
     })
 end
 
-local WindowTitle = 'Cynth | Dev ' .. (type(identifyexecutor) == 'function' and identifyexecutor() or 'unknown')
+local WindowTitle = 'Cynth | Dev Version | ' .. (type(identifyexecutor) == 'function' and identifyexecutor() or 'unknown')
 
 local Window = Library:CreateWindow({
     Title = WindowTitle,
